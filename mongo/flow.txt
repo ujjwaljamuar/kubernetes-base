@@ -1,0 +1,8 @@
+when you enter anything from the mongo express ui
+
+flow --
+ - mongo-express-ui
+ - mongo-express-external-service
+ - mongo-express-pod
+ - mongodb-internal-service
+ - mongodb-pod

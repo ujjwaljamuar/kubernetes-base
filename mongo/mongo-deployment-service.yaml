@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo-deployment
+  name: mongodb-deployment
   labels:
     app: mongodb
 spec:
@@ -29,7 +29,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mongodb-secret
-                  key: mongo-root-username
+                  key: mongo-root-password
 ---
 apiVersion: v1
 kind: Service
