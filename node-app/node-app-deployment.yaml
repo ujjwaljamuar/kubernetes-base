@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  labels:
+    app: node-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata: 
+      labels:
+        app: node-app
+    spec:
+      # imagePullSecrets:
+      #   - name: my-registry-key
+      containers:
+        - name: node-app
+          image: public.ecr.aws/q7b0e5f9/node-app:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
