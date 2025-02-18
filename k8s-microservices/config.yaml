@@ -16,7 +16,7 @@ spec:
         - name: service
           image: gcr.io/google-samples/microservices-demo/emailservice
           ports:
-            - containerPort: 8080 
+            - containerPort: 8080
           env:
             - name: PORT
               value: "8080"
@@ -32,7 +32,7 @@ spec:
   ports:
     - protocol: TCP
       port: 5000
-      targetPort: 8080 
+      targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -49,14 +49,19 @@ spec:
     spec:
       containers:
         - name: service
-          image: gcr.io/google-samples/microservices-demo/recommendationservice 
+          image: gcr.io/google-samples/microservices-demo/recommendationservice
           ports:
             - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: recommendationservice
 spec:
   type: ClusterIP
   selector:
@@ -69,34 +74,107 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: productcatalogservice
 spec:
   selector:
     matchLabels:
-      app: x
+      app: productcatalogservice
   template:
     metadata:
       labels:
-        app: x
+        app: productcatalogservice
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/productcatalogservice
           ports:
-            - containerPort: x
+            - containerPort: 3550
+          env:
+            - name: PORT
+              value: "3550"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: productcatalogservice
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: productcatalogservice
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x            
+      port: 3550
+      targetPort: 3550
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+  template:
+    metadata:
+      labels:
+        app: paymentservice
+    spec:
+      containers:
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/paymentservice
+          ports:
+            - containerPort: 50051
+          env:
+            - name: PORT
+              value: "50051"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice
+spec:
+  type: ClusterIP
+  selector:
+    app: paymentservice
+  ports:
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencyservice
+spec:
+  selector:
+    matchLabels:
+      app: currencyservice
+  template:
+    metadata:
+      labels:
+        app: currencyservice
+    spec:
+      containers:
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/currencyservice
+          ports:
+            - containerPort: 7000
+          env:
+            - name: PORT
+              value: "7000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currencyservice
+spec:
+  type: ClusterIP
+  selector:
+    app: currencyservice
+  ports:
+    - protocol: TCP
+      port: 7000
+      targetPort: 7000
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -289,67 +367,3 @@ spec:
     - protocol: TCP
       port: x
       targetPort: x
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: emailservice
-spec:
-  selector:
-    matchLabels:
-      app: x
-  template:
-    metadata:
-      labels:
-        app: x
-    spec:
-      containers:
-        - name: x
-          image: x
-          ports:
-            - containerPort: x
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: x
-spec:
-  type: ClusterIP
-  selector:
-    app: x
-  ports:
-    - protocol: TCP
-      port: x
-      targetPort: x                                          
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: emailservice
-spec:
-  selector:
-    matchLabels:
-      app: x
-  template:
-    metadata:
-      labels:
-        app: x
-    spec:
-      containers:
-        - name: x
-          image: x
-          ports:
-            - containerPort: x
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: x
-spec:
-  type: ClusterIP
-  selector:
-    app: x
-  ports:
-    - protocol: TCP
-      port: x
-      targetPort: x      
