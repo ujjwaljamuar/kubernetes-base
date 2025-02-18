@@ -179,191 +179,240 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: shippingservice
 spec:
   selector:
     matchLabels:
-      app: x
+      app: shippingservice
   template:
     metadata:
       labels:
-        app: x
+        app: shippingservice
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/shippingservice
           ports:
-            - containerPort: x
+            - containerPort: 50051
+          env:
+            - name: PORT
+              value: "50051"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: shippingservice
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: shippingservice
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 50051
+      targetPort: 50051
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: adservice
 spec:
   selector:
     matchLabels:
-      app: x
+      app: adservice
   template:
     metadata:
       labels:
-        app: x
+        app: adservice
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/adservice
           ports:
-            - containerPort: x
+            - containerPort: 9555
+          env:
+            - name: PORT
+              value: "9555"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: adservice
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: adservice
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 9555
+      targetPort: 9555
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: cartservice
 spec:
   selector:
     matchLabels:
-      app: x
+      app: cartservice
   template:
     metadata:
       labels:
-        app: x
+        app: cartservice
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/cartservice
           ports:
-            - containerPort: x
+            - containerPort: 7070
+          env:
+            - name: PORT
+              value: "7070"
+            - name: REDIS_ADDR
+              value: "redis-cart:6379"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: cartservice
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: cartservice
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 7070
+      targetPort: 7070
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: redis-cart
 spec:
   selector:
     matchLabels:
-      app: x
+      app: redis-cart
   template:
     metadata:
       labels:
-        app: x
+        app: redis-cart
     spec:
       containers:
-        - name: x
-          image: x
+        - name: redis
+          image: redis-alpine
           ports:
-            - containerPort: x
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: redis-cart
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: redis-cart
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 6379
+      targetPort: 6379
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: checkoutservice
 spec:
   selector:
     matchLabels:
-      app: x
+      app: checkoutservice
   template:
     metadata:
       labels:
-        app: x
+        app: checkoutservice
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/checkoutservice
           ports:
-            - containerPort: x
+            - containerPort: 5050
+          env:
+            - name: PORT
+              value: "5050"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: PAYMENT_SERVICE_ADDR
+              value: "paymentservice:50051"
+            - name: EMAIL_SERVICE_ADDR
+              value: "emailservice:5000"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: checkoutservice
 spec:
   type: ClusterIP
   selector:
-    app: x
+    app: checkoutservice
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 5050
+      targetPort: 5050
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: emailservice
+  name: frontend
 spec:
   selector:
     matchLabels:
-      app: x
+      app: frontend
   template:
     metadata:
       labels:
-        app: x
+        app: frontend
     spec:
       containers:
-        - name: x
-          image: x
+        - name: service
+          image: gcr.io/google-samples/microservices-demo/frontend
           ports:
-            - containerPort: x
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: PAYMENT_SERVICE_ADDR
+              value: "paymentservice:50051"
+            - name: EMAIL_SERVICE_ADDR
+              value: "emailservice:5000"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: x
+  name: frontend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
-    app: x
+    app: frontend
   ports:
     - protocol: TCP
-      port: x
-      targetPort: x
+      port: 80
+      targetPort: 8080
+      nodePort: 31234
