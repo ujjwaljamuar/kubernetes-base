@@ -1,0 +1,13 @@
+emailService:
+  appName: service
+  replicas: 3
+  imageName: x
+  imageVersion: y
+  serviceType: ClusterIP
+  servicePort: 80
+  containerPort: 8080
+  containerEnvVars: 
+    - name: KEY1
+      value: "valueone"
+    - name: KEY2
+      value: "valuetwo"

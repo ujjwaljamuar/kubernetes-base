@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: {{ .Values.emailService.appName }}
+spec:
+  replicas: {{ .Values.emailService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.emailService.appName }}
+  template: 
+    metadata: 
+      labels:
+        app: {{ .Values.emailService.appName }}
+    spec:
+      containers:
+        - name: {{ .Values.emailService.appName }}
+          image: "{{ .Values.emailService.imageName }}:{{ .Values.emailService.imageVersion }}"
+          ports:
+            - containerPort: {{ .Values.emailService.containerPort }} 
+          env:
+          env:
+          {{- range .Values.emailService.containerEnvVars}}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+          {{- end}}

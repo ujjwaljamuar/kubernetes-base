@@ -1,0 +1,12 @@
+version: v1
+kind: Service
+metadata:
+  name: {{ .Values.emailService.appName }}
+spec:
+  type: {{ .Values.emailService.serviceType }}
+  selector:
+    app: {{ .Values.emailService.appName }} 
+  ports:
+    - protocol: TCP
+      port: {{ .Values.emailService.servicePort }}
+      targetPort: {{ .Values.emailService.ContainerPort }}
